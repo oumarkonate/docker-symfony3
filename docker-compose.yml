@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  web:
+   container_name: docker-symfony3_nginx
+   restart: "no"
+   image: nginx:latest
+   ports:
+   - "80:80"
+   volumes:
+   - ./www:/www
+   - ./src/site.conf:/etc/nginx/nginx.conf
+   - ./src/nginx/logs:/var/log/nginx/
+
+  php:
+   container_name: docker-symfony3_php7
+   restart: "no"
+   build:
+    context: ./src/php7
+   volumes:
+   - ./www:/www
+
+  db:
+   container_name: docker-symfony3_mariadb
+   restart: "no"
+   image: mariadb:latest
+   volumes:
+    - ./src/mariadb:/var/lib/mysql
+   environment:
+    MYSQL_RANDOM_ROOT_PASSWORD: 1
+    MYSQL_DATABASE: dev
+    MYSQL_USER: dev
+    MYSQL_PASSWORD: dev123
+   ports:
+   - "3306:3306"
+
+  pma:
+   container_name: docker-symfony3_pma
+   restart: "no"
+   image: phpmyadmin/phpmyadmin
+   environment:
+    PMA_ARBITRARY: 1
+    PMA_HOST: db
+    PMA_USER: dev
+    PMA_PASSWORD: dev123
+    PHP_UPLOAD_MAX_FILESIZE: 1G
+    PHP_MAX_INPUT_VARS: 1G
+   restart: always
+   ports:
+   - "8001:80"
+   volumes:
+   - ./src/sessions:/sessions 
